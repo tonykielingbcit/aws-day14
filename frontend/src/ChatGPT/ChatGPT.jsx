@@ -4,15 +4,18 @@ import ChatWindow from './ChatWindow';
 
 const ChatGPT = () => {
   const [selectedChat, setSelectedChat] = useState(null);
+  const [processing, setProcessing] = useState(false);
+
 
   return (
     <div className="flex min-h-screen">
       <div className="w-2/5 p-4 border-r">
-        <ChatList onSelect={setSelectedChat} selectedChat={selectedChat} />
+        <ChatList onSelect={setSelectedChat} selectedChat={selectedChat} onSetSelectedChat={setSelectedChat}
+            onProcessing={processing} onSetProcessing={setProcessing} />
       </div>
       <div className="w-3/5 p-4">
         {selectedChat ? (
-          <ChatWindow chat={selectedChat} />
+          <ChatWindow chat={selectedChat} onProcessing={processing} onSetProcessing={setProcessing} />
         ) : (
           <div className="flex items-center justify-center h-full">
             <h2 className="text-lg font-semibold text-gray-600">Select or Create a chat to start the conversation</h2>

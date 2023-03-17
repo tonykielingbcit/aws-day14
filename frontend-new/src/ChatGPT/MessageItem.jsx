@@ -46,7 +46,7 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
           <button onClick={() => setIsEditing(true)} className="px-1 text-gray-600 hover:text-gray-800">
             <EditIcon />
           </button>
-          <button onClick={handleDelete} className="px-1 ml-2 text-gray-600 hover:text-gray-800">
+          <button onClick={handleDelete} className="px-1 text-gray-600 hover:text-gray-800">
             <TrashIcon />
           </button>
         </div>

@@ -3,19 +3,25 @@ import ChatItem from './ChatItem';
 import NewChatButton from './NewChatButton';
 
 
-const ChatList = ({ onSelect, selectedChat }) => {
+const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSetSelectedChat }) => {
   const api_url = import.meta.env.VITE_API_URL;
   const [chats, setChats] = useState([]);
 
   useEffect(() => {
-    fetch(`${api_url}/chats`)
-      .then(res => res.json())
-      .then(chats => setChats(chats.message));
+    onSetProcessing(true);
+    
+    setTimeout(() => {
+      fetch(`${api_url}/chats`)
+        .then(res => res.json())
+        .then(chats => setChats(chats.message))
+        .then(onSetProcessing(false));
+    }, 500);
   }, []);
 
 
 
   const updateChat = async (id, newName) => {
+    onSetProcessing(true);
     const updatingChat = await fetch(
       `${api_url}/chat`,
       {
@@ -32,6 +38,7 @@ const ChatList = ({ onSelect, selectedChat }) => {
     
     const updatedChats = chats.map(chat => chat.id === id ? { ...chat, name: newName } : chat);
     setChats(updatedChats);
+    onSetProcessing(false);
   };
 
 
@@ -41,6 +48,7 @@ const ChatList = ({ onSelect, selectedChat }) => {
 
     if (!confirmDeletion) return;
 
+    onSetProcessing(true);
     await fetch(
       `${api_url}/chat/${id}`,
       { method: "DELETE" }
@@ -48,11 +56,14 @@ const ChatList = ({ onSelect, selectedChat }) => {
     
     const updatedChats = chats.filter(chat => chat.id !== id);
     setChats(updatedChats);
+    onSetProcessing(false);
+    onSetSelectedChat(null);
   };
 
 
   
   const createChat = async name => {
+    onSetProcessing(true);
     const addingChat = await fetch(
       `${api_url}/newChat`,
       {
@@ -67,6 +78,7 @@ const ChatList = ({ onSelect, selectedChat }) => {
     ).then(res => res.json());
 
     setChats([addingChat.message, ...chats]);
+    onSetProcessing(false);
   };
 
 
@@ -81,7 +93,7 @@ const ChatList = ({ onSelect, selectedChat }) => {
         <ChatItem selected={chat.id == selectedChat?.id} key={chat.id} chat={chat} 
             onSelect={onSelect} onUpdate={updateChat} onDelete={deleteChat} />
       ))}
-      <NewChatButton onCreate={createChat} />
+      <NewChatButton onCreate={createChat} onProcessing={onSetProcessing} processing={onProcessing} />
     </div>
   );
 };

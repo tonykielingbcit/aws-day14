@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 
-const NewChatButton = ({ onCreate }) => {
+const NewChatButton = ({ onCreate, processing }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [name, setName] = useState('');
+  const inputRef = useRef(null);
 
   const handleCreate = () => {
     if (name.trim() !== '') {
       onCreate(name);
       setName('');
       setIsCreating(false);
-    }
+    } else inputRef.current.focus();
   };
+
+
+  const handleEnter = ev => {
+    if (ev.key === "Enter")
+      handleCreate();
+  }
 
   return (
     <>
@@ -22,6 +29,8 @@ const NewChatButton = ({ onCreate }) => {
             onChange={(e) => setName(e.target.value)}
             className="flex-grow p-2 border rounded"
             placeholder="Chat name..."
+            ref={inputRef}
+            onKeyDown={handleEnter}
             autoFocus
           />
           <button
@@ -40,9 +49,10 @@ const NewChatButton = ({ onCreate }) => {
       ) : (
         <button
           onClick={() => setIsCreating(true)}
-          className="w-full px-4 py-2 mt-4 text-white bg-green-500 font-semibold rounded"
+          className={`w-full px-4 py-2 mt-4 text-white bg-green-500 font-semibold rounded ${processing ? "bg-orange-400" : ""}`}
+          disabled={processing}
         >
-          New Chat
+          {processing ? "processing..." : "New Chat"}
         </button>
       )}
     </>

@@ -1,20 +1,38 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { EditIcon, TrashIcon } from './Icons';
 
 const MessageItem = ({ message, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [content, setContent] = useState(message.content);
-
   const isUser = message.sender === 'user';
+  const inputRef = useRef(null);
 
   const handleUpdate = () => {
     onUpdate(message.id, content);
     setIsEditing(false);
   };
 
+
   const handleDelete = () => {
     onDelete(message.id);
   };
+
+
+  const FormatedDtTm = () => {
+    const dt = new Date(message.timestamp)
+    const dtOptions = {  
+        year: "numeric", month: "short", day: "numeric"
+      };  
+    const tmOptions = { hour: "2-digit", minute: "2-digit", hour12: false };
+    const dateToDisplay = `${dt.toLocaleDateString('en-US', dtOptions)} - ${dt.toLocaleTimeString("en-US", tmOptions)}`;
+    return <span className="mr-1 italic text-xs font-semibold text-orange-600">{dateToDisplay}</span>;
+  }
+
+
+  const handleEnter = ev => {
+    if (ev.key === "Enter") handleUpdate();
+  }
+
 
   return (
     <div className={`flex my-2 ${isUser ? 'justify-end' : ''}`}>
@@ -26,6 +44,9 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             className="flex-grow p-1 border rounded"
+            onKeyDown={handleEnter}
+            ref={inputRef}
+            autoFocus
           />
           <button onClick={handleUpdate} className="ml-2 px-2 py-1 bg-green-500 text-white font-semibold rounded">
             Save
@@ -43,10 +64,12 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
       
         <div className="flex items-center">
           <span className="flex-grow">{content}</span>
+          {/* <span>date</span> */}
+          <FormatedDtTm />
           <button onClick={() => setIsEditing(true)} className="px-1 text-gray-600 hover:text-gray-800">
             <EditIcon />
           </button>
-          <button onClick={handleDelete} className="px-1 ml-2 text-gray-600 hover:text-gray-800">
+          <button onClick={handleDelete} className="px-1 text-gray-600 hover:text-gray-800">
             <TrashIcon />
           </button>
         </div>

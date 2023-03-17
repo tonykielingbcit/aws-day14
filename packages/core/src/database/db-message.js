@@ -43,7 +43,7 @@ export async function updateMessage(id, content) {
     SET content = $2
     WHERE id = $1
   `, [id, content]);
-console.log("UPDATING:::: ", res);
+  
   return res.rowCount;
 }
 
