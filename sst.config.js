@@ -4,7 +4,7 @@ import { FrontendStack } from "./stacks/FrontendStack";
 export default {
   config(_input) {
     return {
-      name: "chatapp",
+      name: "chatapp-v2",
       region: "us-west-2",
     };
   },
