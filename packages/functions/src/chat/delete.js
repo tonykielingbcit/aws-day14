@@ -1,9 +1,11 @@
 import { deleteChat } from "@chatapp/core/src/database/db-chat";
 
 export async function main(event, context) {
+    const sub = event.requestContext.authorizer?.jwt.claims.sub;
+
     try {
       const { id } = event.pathParameters;
-      await deleteChat(id);
+      await deleteChat(id, sub);
     
       return ({
         statusCode: 200,

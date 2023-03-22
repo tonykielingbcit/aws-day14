@@ -1,45 +1,34 @@
-import { useEffect } from 'react';
 import ChatGPT from './ChatGPT/ChatGPT'
+import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
 
 export default function App() {
-  // const api_url = import.meta.env.VITE_API_URL || "should be an URL..";
-
-  // useEffect(() => {
-  //   fetch(`${api_url}/chats`)
-  //     .then(res => res.json())
-  //     .then(console.log);
-  // }, []);
 
   return (
-    <ChatGPT></ChatGPT>
+    <div className="flex flex-col min-h-screen">
+        <BrowserRouter>
+            <nav className='px-7 h-16 flex flex-col justify-center bg-slate-400'>
+                <ul className='flex justify-between'>
+                    <li>
+                        <Link to="/">Home</Link>
+                    </li>
+                    <li>
+                        <Link to="/about">About</Link>
+                    </li>
+                </ul>
+            </nav>
+
+            <main className='flex flex-col grow bg-slate-200'>
+                <Routes>
+                <Route path="/" element={<ChatGPT />} />
+                <Route path="/about" element={<div className='m-auto'>About</div>} />
+                </Routes>
+            </main>
+
+            <footer class="flex justify-end bg-slate-400 pr-4 h-10">
+                <span className='flex flex-col justify-center font-bold text-slate-600'>Tony Kieling &copy; - 2023</span>
+            </footer>
+        </BrowserRouter>
+
+    </div>
   )
 }
-// import { useState, useEffect } from 'react'
-// import './App.css'
-
-// function App() {
-//   const api_url = import.meta.env.VITE_API_URL || "should be an URL..";
-//   const [message, setMessage] = useState("processing...");
-//   useEffect(() => {
-//     fetch(`${api_url}/test/main`)
-//             .then(res => res.json())
-//             .then(r => {
-//               setMessage(r.message);
-//               console.log("tempMessage: ", r);
-//             })
-//             .catch(er => setMessage(er));
-//     console.log("test " + api_url)
-//   }, []);
-//   return (
-//     <div className="App">
-//       <h1>Vite + React - TK</h1>
-//       <h3 style={{color: "lime"}}>{api_url}</h3>
-//       <div className="card">
-//         <h3 style={{color: "blue"}}>{message}</h3>
-//       </div>
-
-//     </div>
-//   )
-// }
-
-// export default App

@@ -22,12 +22,12 @@ export async function getChats() {
   return res.rows
 }
 
-export async function createChat(name) {
+export async function createChat(name, userId, username) {
     const res = await getPool().query(`
-      INSERT INTO chats (name)
-      VALUES ($1)
+      INSERT INTO chats (name, user_id, username)
+      VALUES ($1, $2, $3)
       RETURNING *
-    `, [name])
+    `, [name, userId, username]);
   return res.rows[0]
 }
 
@@ -41,11 +41,12 @@ export async function updateChat(id, name) {
   return res.rowCount;
 }
 
-export async function deleteChat(id) {
+export async function deleteChat(id, userId) {
   const res = await getPool().query(`
     DELETE FROM chats
-    WHERE id = $1
+    WHERE id = $1 AND
+    user_id = $2
     RETURNING *
-  `, [id])
+  `, [id, userId])
   return res.rows[0]
 }

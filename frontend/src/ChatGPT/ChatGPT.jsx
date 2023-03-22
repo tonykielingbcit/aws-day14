@@ -8,7 +8,8 @@ const ChatGPT = () => {
 
 
   return (
-    <div className="flex min-h-screen">
+    // <div className="flex min-h-screen">
+    <div className="flex min-h-fit bg-lime-400">
       <div className="w-2/5 p-4 border-r">
         <ChatList onSelect={setSelectedChat} selectedChat={selectedChat} onSetSelectedChat={setSelectedChat}
             onProcessing={processing} onSetProcessing={setProcessing} />
