@@ -1,21 +1,34 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { EditIcon, TrashIcon } from './Icons'; // Import the icons from a separate file
+import { useAuthenticator } from "@aws-amplify/ui-react";
+
 
 const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(chat.name);
   const inputRef = useRef(null);
 
+  const { route } = useAuthenticator((context) => [context.route]);
+  const [notLogged, setNotLogged] = useState(true);
+  useEffect(() => {
+      setNotLogged((route !== "authenticated" ? true : false));
+  }, []);
+
 
   const handleUpdate = () => {
-    onUpdate(chat.id, name);
-    setIsEditing(false);
+    const ul = handleClick();
+    if (ul) {
+        onUpdate(chat.id, name);
+        setIsEditing(false);
+    }
   };
 
 
   const handleDelete = event => {
     event.stopPropagation(); // Prevent the chat from being selected
-    onDelete(chat.id, chat.name);
+    const ul = handleClick();
+    if (ul)
+        onDelete(chat.id, chat.name);
   };
 
 
@@ -36,6 +49,15 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
     if (ev.key === "Enter")
       handleUpdate();
   }
+
+
+  const handleClick = action => {
+    if (notLogged) {
+        alert("Login first, please");
+        return false;
+    }
+    return true;
+  };
 
 
   return (
@@ -61,10 +83,11 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
       ) : (
         <div className="flex items-center cursor-pointer">
           <h3 className="flex-grow font-semibold">{chat.name}</h3>
-          <button onClick={toggleEditing} className="px-1 text-gray-600 hover:text-gray-800">
+          <button onClick={handleUpdate} className="px-1 text-gray-600 hover:text-gray-800">
             <EditIcon />
           </button>
           <button onClick={handleDelete} className="px-1 ml-2 text-gray-600 hover:text-gray-800">
+          {/* <button onClick={() => handleClick("delete")} className="px-1 ml-2 text-gray-600 hover:text-gray-800"> */}
             <TrashIcon />
           </button>
         </div>

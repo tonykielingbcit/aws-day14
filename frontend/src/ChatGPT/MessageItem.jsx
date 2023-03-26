@@ -1,5 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { EditIcon, TrashIcon } from './Icons';
+import { useAuthenticator } from "@aws-amplify/ui-react";
+
 
 const MessageItem = ({ message, onUpdate, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -7,6 +9,15 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
   const isUser = message.sender === 'user';
   const inputRef = useRef(null);
   const tempMessage = message.content;
+
+
+  const { route } = useAuthenticator((context) => [context.route]);
+  const [notLogged, setNotLogged] = useState(true);
+  useEffect(() => {
+      setNotLogged((route !== "authenticated" ? true : false));
+  }, []);
+
+
 
   const handleUpdate = async () => {
     const updatingMessage = await onUpdate(message.id, content);
@@ -73,10 +84,10 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
           <span className="flex-grow">{content}</span>
           {/* <span>date</span> */}
           <FormatedDtTm />
-          <button onClick={() => setIsEditing(true)} className="px-1 text-gray-600 hover:text-gray-800">
+          <button onClick={() => setIsEditing(true)} disabled={notLogged} className="px-1 text-gray-600 hover:text-gray-800">
             <EditIcon />
           </button>
-          <button onClick={handleDelete} className="px-1 text-gray-600 hover:text-gray-800">
+          <button onClick={handleDelete} disabled={notLogged} className="px-1 text-gray-600 hover:text-gray-800">
             <TrashIcon />
           </button>
         </div>

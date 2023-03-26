@@ -1,9 +1,17 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { useAuthenticator } from "@aws-amplify/ui-react";
 
 const NewChatButton = ({ onCreate, processing }) => {
   const [isCreating, setIsCreating] = useState(false);
   const [name, setName] = useState('');
   const inputRef = useRef(null);
+  const { route } = useAuthenticator((context) => [context.route]);
+  const [notLogged, setNotLogged] = useState(true);
+
+
+  useEffect(() => {
+      setNotLogged((route !== "authenticated" ? true : false));
+  }, []);
 
   const handleCreate = () => {
     if (name.trim() !== '') {
@@ -18,6 +26,16 @@ const NewChatButton = ({ onCreate, processing }) => {
     if (ev.key === "Enter")
       handleCreate();
   }
+
+  const handleClick = () => {
+    if (notLogged) {
+        alert("Login first, please");
+        return;
+    }
+
+    setIsCreating(true);
+  };
+
 
   return (
     <>
@@ -48,11 +66,13 @@ const NewChatButton = ({ onCreate, processing }) => {
         </div>
       ) : (
         <button
-          onClick={() => setIsCreating(true)}
+        //   onClick={() => setIsCreating(true)}
+          onClick={handleClick}
           className={`w-full px-4 py-2 mt-4 text-white bg-green-500 font-semibold rounded ${processing ? "bg-orange-400" : ""}`}
           disabled={processing}
         >
           {processing ? "processing..." : "New Chat"}
+          {/* {processing ? "processing..." : notLogged ? "Login first, please" : "New Chat"} */}
         </button>
       )}
     </>

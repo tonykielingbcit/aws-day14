@@ -7,9 +7,10 @@ import ChatGPT from './ChatGPT/ChatGPT'
 import Login from './Login';
 import Profile from './Profile';
 import { useEffect, useState } from 'react';
+import RouteGuard from "./RouteGuard";
 
 import { useAuthenticator } from "@aws-amplify/ui-react";
-import { Navigate } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
 
 
 
@@ -86,7 +87,7 @@ export default function App() {
                         <Routes>
                             <Route path="/" element={<ChatGPT />} />
                             <Route path="/login" element={<Login />} />
-                            <Route path="/profile" element={<Profile onLeaveApp={leaveApp} />} />
+                            <Route path="/profile" element={<RouteGuard><Profile onLeaveApp={leaveApp} /></RouteGuard>} />
                             <Route path="/about" element={<div className='m-auto'>About</div>} />
                         </Routes>
                     </main>

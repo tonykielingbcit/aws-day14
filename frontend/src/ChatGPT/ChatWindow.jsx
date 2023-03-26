@@ -1,14 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Message from './MessageItem';
 import { Auth, API } from "aws-amplify";
+import { useAuthenticator } from "@aws-amplify/ui-react";
 
 
 const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
-//   const api_url = import.meta.env.VITE_API_URL;
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const inputRef = useRef(null);
   const [token, setToken] = useState("");
+
+  const { route } = useAuthenticator((context) => [context.route]);
+  const [notLogged, setNotLogged] = useState(true);
+  useEffect(() => {
+      setNotLogged((route !== "authenticated" ? true : false));
+  }, []);
 
   useEffect(() => {
     onSetProcessing(true);
@@ -28,8 +34,18 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
   
 
   const handleSend = async () => {
+    if (!input || input.trim() === "") {
+        inputRef.current.focus();
+        return;
+    }
+    
+    if (notLogged) {
+        alert("Login first, please");
+        return;
+    }
+
+
     onSetProcessing(true);
-    if (!input || input.trim() === "") return;
 
     const addingMessage = await API.post(
         "api",
