@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Auth, API } from "aws-amplify";
+import { useAuthenticator } from '@aws-amplify/ui-react';
+
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
 
@@ -6,11 +9,13 @@ const ChatGPT = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [processing, setProcessing] = useState(false);
 
+//   const { user } = useAuthenticator(context => [context.user]);
 
+//   <div className="flex min-h-screen">
   return (
-    // <div className="flex min-h-screen">
-    <div className="flex min-h-fit bg-lime-400">
-      <div className="w-2/5 p-4 border-r">
+    // <div className="flex bg-lime-800 grow">
+    <div className="flex grow">
+      <div className="w-2/5 p-4 border-r border-slate-400 md:w-1/3">
         <ChatList onSelect={setSelectedChat} selectedChat={selectedChat} onSetSelectedChat={setSelectedChat}
             onProcessing={processing} onSetProcessing={setProcessing} />
       </div>

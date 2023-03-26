@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
+import { Auth, API } from "aws-amplify";
+
 import ChatItem from './ChatItem';
 import NewChatButton from './NewChatButton';
 
 
 const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSetSelectedChat }) => {
-  const api_url = import.meta.env.VITE_API_URL;
   const [chats, setChats] = useState([]);
 
   useEffect(() => {
     onSetProcessing(true);
     
-    setTimeout(() => {
-      fetch(`${api_url}/chats`)
-        .then(res => res.json())
-        .then(chats => setChats(chats.message))
-        .then(onSetProcessing(false));
-    }, 500);
+    (async () => {
+        const getChats = await API.get("api", "/chats");
+        setChats(getChats.message);
+        onSetProcessing(false);
+    })();
   }, []);
 
 
@@ -63,19 +63,45 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
 
   
   const createChat = async name => {
+    console.log("name:: ", name)
     onSetProcessing(true);
-    const addingChat = await fetch(
-      `${api_url}/newChat`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name
-        })
-      }
-    ).then(res => res.json());
+    // const addingChat = await fetch(
+    //   `${api_url}/newChat`,
+    //   {
+    //     method: "POST",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({
+    //       name
+    //     })
+    //   }
+    // ).then(res => res.json());
+    const token = (await Auth.currentSession()).getAccessToken().getJwtToken();
+    // console.log("token ", token)
+    // const addingChat = await API.post("api", "/newChat", 
+    //     { body: JSON.stringify({ name }) },
+    //     {
+    //         headers: {
+    //             Authorization: `Bearer ${(await Auth.currentSession())
+    //                 .getAccessToken()
+    //                 .getJwtToken()}`,
+    //             },
+                
+    //     }
+    // );
+    const addingChat = await API.post(
+        "api",
+        "/newChat",
+        { 
+            // body: JSON.stringify({ name }),
+            body: { name: name },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+      );
+    console.log("addingChat=== ", addingChat)
 
     setChats([addingChat.message, ...chats]);
     onSetProcessing(false);
@@ -84,12 +110,12 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
 
   return (
     <div className="overflow-y-auto">
-      {(!chats || chats.length < 1) &&
+      {(!chats || chats?.length < 1) &&
         <div className='w-4/5 m-auto'>
           <p className='text-center font-bold text-red-500 border-2 rounded-md my-8'>No Chats so far</p>
         </div>
       }
-      {chats.map(chat => (
+      {chats?.length > 0 && chats.map(chat => (
         <ChatItem selected={chat.id == selectedChat?.id} key={chat.id} chat={chat} 
             onSelect={onSelect} onUpdate={updateChat} onDelete={deleteChat} />
       ))}

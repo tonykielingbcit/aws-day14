@@ -10,7 +10,7 @@ export function FrontendStack({ stack, app }) {
     buildCommand: "npm run build",
     // Pass in our environment variables
     environment: {
-      VITE_API_URL: api?.customDomainUrl || api?.url,
+      VITE_APP_API_URL: api.customDomainUrl || api.url,
       VITE_APP_REGION: app.region,
       VITE_APP_USER_POOL_ID: auth.userPoolId,
       VITE_APP_USER_POOL_CLIENT_ID: auth.userPoolClientId,
