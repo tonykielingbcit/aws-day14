@@ -6,15 +6,22 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
   const [content, setContent] = useState(message.content);
   const isUser = message.sender === 'user';
   const inputRef = useRef(null);
+  const tempMessage = message.content;
 
-  const handleUpdate = () => {
-    onUpdate(message.id, content);
+  const handleUpdate = async () => {
+    const updatingMessage = await onUpdate(message.id, content);
+    if (!updatingMessage)
+        setContent(tempMessage);
+
     setIsEditing(false);
   };
 
 
-  const handleDelete = () => {
-    onDelete(message.id);
+  const handleDelete = async () => {
+    const deletingMessage = await onDelete(message.id);
+
+    if (!deletingMessage)
+        setContent(tempMessage);
   };
 
 

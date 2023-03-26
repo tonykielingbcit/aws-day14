@@ -31,13 +31,13 @@ export async function createChat(name, userId, username) {
   return res.rows[0]
 }
 
-export async function updateChat(id, name) {
+export async function updateChat(id, name, userId) {
   const res = await getPool().query(`
     UPDATE chats
     SET name = $2
-    WHERE id = $1
-  `, [id, name]);
-// console.log("UPDATING:::: ", res);
+    WHERE id = $1 AND
+    user_id = $3
+  `, [id, name, userId]);
   return res.rowCount;
 }
 
@@ -48,5 +48,5 @@ export async function deleteChat(id, userId) {
     user_id = $2
     RETURNING *
   `, [id, userId])
-  return res.rows[0]
+  return res.rowCount;
 }

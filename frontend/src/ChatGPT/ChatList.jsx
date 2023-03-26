@@ -28,8 +28,9 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
 
   const updateChat = async (id, newName) => {
     onSetProcessing(true);
+    console.log("before update chat::: ", newName)
 
-    await API.put(
+    const updatingChat = await API.put(
         "api",
         "/chat",
         {
@@ -41,7 +42,13 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
                 Authorization: `Bearer ${token}`,
             },
         }
-      );
+    );
+
+    if (updatingChat.error) {
+        alert("Sorry, this chat does not belong to you \ntherefore you CANNOT UPDATE IT.");
+        onSetProcessing(false);
+        return;
+    }
     
     const updatedChats = chats.map(chat => chat.id === id ? { ...chat, name: newName } : chat);
     setChats(updatedChats);
@@ -56,7 +63,7 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
     if (!confirmDeletion) return;
 
     onSetProcessing(true);
-    await API.del(
+    const deletingChat = await API.del(
         "api",
         `/chat/${id}`,
         { 
@@ -64,8 +71,14 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
                 Authorization: `Bearer ${token}`,
             },
         }
-      );
+    );
     
+    if (deletingChat.error) {
+        alert("Sorry, this chat does not belong to you \ntherefore you CANNOT DELETE IT.");
+        onSetProcessing(false);
+        return;
+    }
+
     const updatedChats = chats.filter(chat => chat.id !== id);
     setChats(updatedChats);
     onSetProcessing(false);

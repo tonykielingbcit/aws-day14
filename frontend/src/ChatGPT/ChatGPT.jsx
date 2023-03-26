@@ -17,6 +17,8 @@ const ChatGPT = () => {
 //     })();
 //   }, []);
 
+    // useEffect(() => console.log("CHATGPTTTTTTTTTT"), []);
+
   return (
     // <div className="flex bg-lime-800 grow">
     <div className="flex grow">

@@ -4,7 +4,7 @@ import { Auth, API } from "aws-amplify";
 
 
 const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
-  const api_url = import.meta.env.VITE_API_URL;
+//   const api_url = import.meta.env.VITE_API_URL;
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const inputRef = useRef(null);
@@ -43,7 +43,15 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
                 Authorization: `Bearer ${token}`,
             },
         }
-      );
+    );
+
+    // console.log("addingMessage::: ", addingMessage)
+
+    if (addingMessage.error) {
+        alert("Sorry, this chat does not belong to you \ntherefore you CANNOT ADD MESSAGES TO IT.");
+        onSetProcessing(false);
+        return false;
+    }
     
     setMessages([addingMessage.message, ...messages]);
     setInput('');
@@ -55,8 +63,8 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
   
   const handleMessageUpdate = async (id, content) => {
     onSetProcessing(true);
-    
-    await API.put(
+    console.log("before update content::: ", content, messages)
+    const updatingMessage = await API.put(
         "api",
         "/message",
         {
@@ -68,18 +76,25 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
                 Authorization: `Bearer ${token}`,
             },
         }
-      );
+    );
+
+    if (updatingMessage.error) {
+        alert("Sorry, this chat does not belong to you \ntherefore you CANNOT UPDATE ITS MESSAGES.");
+        onSetProcessing(false);
+        return false;
+    }
     
     const updatedMessages = messages.map(msg => msg.id === id ? { ...msg, content } : msg);
     setMessages(updatedMessages);
     onSetProcessing(false);
+    return true;
   }
 
 
   const handleMessageDelete = async (id) => {
     onSetProcessing(true);
 
-    await API.del(
+    const deletingMessage = await API.del(
         "api",
         `/message/${id}`,
         { 
@@ -88,6 +103,12 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
             },
         }
     );
+
+    if (deletingMessage.error) {
+        alert("Sorry, this chat does not belong to you \ntherefore you CANNOT DELETE ITS MESSAGES.");
+        onSetProcessing(false);
+        return false;
+    }
     
     const updatedMessages = messages.filter(message => message.id !== id);
     setMessages(updatedMessages);

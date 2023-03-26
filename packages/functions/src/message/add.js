@@ -1,4 +1,3 @@
-// import * as db from "../helper/db.js";
 import { createMessage } from "@chatapp/core/src/database/db-message";
 
 export async function main(event, context) {
@@ -6,15 +5,16 @@ export async function main(event, context) {
     const username = event.requestContext.authorizer?.jwt.claims.username;
 
     try {
-      const { chatId, content } = JSON.parse(event.body);
-      const newMessage = await createMessage(chatId, content, sub, username);
-    
-      return ({
-        statusCode: 200,
-        body: JSON.stringify({
-          message: newMessage
-        }),
-      });
+        const { chatId, content } = JSON.parse(event.body);
+        const res = await createMessage(chatId, content, sub, username);
+        
+        return ({
+            statusCode: 200,
+            body: JSON.stringify({
+                message: res,
+                error: !res && true
+            }),
+        });
     } catch(error) {
       console.log("###ERROR on addMessage: ", error.message || error);
       return({
