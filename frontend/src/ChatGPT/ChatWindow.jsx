@@ -1,20 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Message from './MessageItem';
+import { Auth, API } from "aws-amplify";
+
 
 const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
   const api_url = import.meta.env.VITE_API_URL;
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const inputRef = useRef(null);
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     onSetProcessing(true);
-    fetch(`${api_url}/messages/${chat.id}`)
-      .then(res => res.json())
-      .then(messages => setMessages(messages.message))
-      .then(onSetProcessing(false));
+    
+    (async () => {
+        const getMessages = await API.get("api", `/messages/${chat.id}`);
+        setMessages(getMessages.message);
+        onSetProcessing(false);
+    })();
 
-  }, [chat])
+    (async () => {
+        const token = (await Auth.currentSession()).getAccessToken().getJwtToken();
+        setToken(token);
+    })();
+  }, [chat]);
 
   
 
@@ -22,21 +31,21 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
     onSetProcessing(true);
     if (!input || input.trim() === "") return;
 
-    const addMessage = await fetch(
-      `${api_url}/newMessage`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          chatId: chat.id,
-          content: input
-        })
-      }
-    ).then(res => res.json());
+    const addingMessage = await API.post(
+        "api",
+        "/newMessage",
+        {
+            body: { 
+                chatId: chat.id,
+                content: input
+             },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+      );
     
-    setMessages([addMessage.message, ...messages]);
+    setMessages([addingMessage.message, ...messages]);
     setInput('');
     onSetProcessing(false);
     inputRef.current.focus();
@@ -46,19 +55,20 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
   
   const handleMessageUpdate = async (id, content) => {
     onSetProcessing(true);
-    const updatingMessage = await fetch(
-      `${api_url}/message`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id,
-          content
-        })
-      }
-    ).then(res => res.json());
+    
+    await API.put(
+        "api",
+        "/message",
+        {
+            body: { 
+                chatId: id,
+                content
+             },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+      );
     
     const updatedMessages = messages.map(msg => msg.id === id ? { ...msg, content } : msg);
     setMessages(updatedMessages);
@@ -68,9 +78,15 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
 
   const handleMessageDelete = async (id) => {
     onSetProcessing(true);
-    await fetch(
-      `${api_url}/message/${id}`,
-      { method: "DELETE" }
+
+    await API.del(
+        "api",
+        `/message/${id}`,
+        { 
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
     );
     
     const updatedMessages = messages.filter(message => message.id !== id);

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Auth, API } from "aws-amplify";
-import { useAuthenticator } from '@aws-amplify/ui-react';
+import React, { useEffect, useState } from 'react';
+// import { Auth } from "aws-amplify";
+// import { useAuthenticator } from '@aws-amplify/ui-react';
 
 import ChatList from './ChatList';
 import ChatWindow from './ChatWindow';
@@ -8,10 +8,15 @@ import ChatWindow from './ChatWindow';
 const ChatGPT = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [token, setToken] = useState("");
 
-//   const { user } = useAuthenticator(context => [context.user]);
+//   useEffect(() => {
+//     (async () => {
+//         const token = (await Auth.currentSession()).getAccessToken().getJwtToken();
+//         setToken(token);
+//     })();
+//   }, []);
 
-//   <div className="flex min-h-screen">
   return (
     // <div className="flex bg-lime-800 grow">
     <div className="flex grow">

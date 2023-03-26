@@ -7,6 +7,7 @@ import NewChatButton from './NewChatButton';
 
 const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSetSelectedChat }) => {
   const [chats, setChats] = useState([]);
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     onSetProcessing(true);
@@ -16,25 +17,31 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
         setChats(getChats.message);
         onSetProcessing(false);
     })();
+
+    (async () => {
+        const token = (await Auth.currentSession()).getAccessToken().getJwtToken();
+        setToken(token);
+    })();
   }, []);
 
 
 
   const updateChat = async (id, newName) => {
     onSetProcessing(true);
-    const updatingChat = await fetch(
-      `${api_url}/chat`,
-      {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id,
-          name: newName
-        })
-      }
-    ).then(res => res.json());
+
+    await API.put(
+        "api",
+        "/chat",
+        {
+            body: {
+                id, 
+                name: newName
+            },
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+      );
     
     const updatedChats = chats.map(chat => chat.id === id ? { ...chat, name: newName } : chat);
     setChats(updatedChats);
@@ -49,10 +56,15 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
     if (!confirmDeletion) return;
 
     onSetProcessing(true);
-    await fetch(
-      `${api_url}/chat/${id}`,
-      { method: "DELETE" }
-    );
+    await API.del(
+        "api",
+        `/chat/${id}`,
+        { 
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+      );
     
     const updatedChats = chats.filter(chat => chat.id !== id);
     setChats(updatedChats);
@@ -63,45 +75,18 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
 
   
   const createChat = async name => {
-    console.log("name:: ", name)
     onSetProcessing(true);
-    // const addingChat = await fetch(
-    //   `${api_url}/newChat`,
-    //   {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({
-    //       name
-    //     })
-    //   }
-    // ).then(res => res.json());
-    const token = (await Auth.currentSession()).getAccessToken().getJwtToken();
-    // console.log("token ", token)
-    // const addingChat = await API.post("api", "/newChat", 
-    //     { body: JSON.stringify({ name }) },
-    //     {
-    //         headers: {
-    //             Authorization: `Bearer ${(await Auth.currentSession())
-    //                 .getAccessToken()
-    //                 .getJwtToken()}`,
-    //             },
-                
-    //     }
-    // );
+    
     const addingChat = await API.post(
         "api",
         "/newChat",
         { 
-            // body: JSON.stringify({ name }),
             body: { name: name },
             headers: {
                 Authorization: `Bearer ${token}`,
             },
         }
       );
-    console.log("addingChat=== ", addingChat)
 
     setChats([addingChat.message, ...chats]);
     onSetProcessing(false);

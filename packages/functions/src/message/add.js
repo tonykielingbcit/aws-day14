@@ -2,9 +2,12 @@
 import { createMessage } from "@chatapp/core/src/database/db-message";
 
 export async function main(event, context) {
+    const sub = event.requestContext.authorizer?.jwt.claims.sub;
+    const username = event.requestContext.authorizer?.jwt.claims.username;
+
     try {
       const { chatId, content } = JSON.parse(event.body);
-      const newMessage = await createMessage(chatId, content);
+      const newMessage = await createMessage(chatId, content, sub, username);
     
       return ({
         statusCode: 200,
