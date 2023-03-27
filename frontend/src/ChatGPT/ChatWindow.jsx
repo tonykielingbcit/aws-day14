@@ -79,7 +79,6 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
   
   const handleMessageUpdate = async (id, content) => {
     onSetProcessing(true);
-    console.log("before update content::: ", content, messages)
     const updatingMessage = await API.put(
         "api",
         "/message",

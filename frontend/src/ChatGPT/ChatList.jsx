@@ -28,7 +28,6 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
 
   const updateChat = async (id, newName) => {
     onSetProcessing(true);
-    console.log("before update chat::: ", newName)
 
     const updatingChat = await API.put(
         "api",

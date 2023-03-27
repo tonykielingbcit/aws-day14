@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { EditIcon, TrashIcon } from './Icons'; // Import the icons from a separate file
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
@@ -8,27 +8,27 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
   const [name, setName] = useState(chat.name);
   const inputRef = useRef(null);
 
-  const { route } = useAuthenticator((context) => [context.route]);
-  const [notLogged, setNotLogged] = useState(true);
-  useEffect(() => {
-      setNotLogged((route !== "authenticated" ? true : false));
-  }, []);
-
+  const { user } = useAuthenticator(context => [context.user]);
 
   const handleUpdate = () => {
-    const ul = handleClick();
-    if (ul) {
-        onUpdate(chat.id, name);
-        setIsEditing(false);
+    if (!user) {
+        alert("Login first, please");
+        return;
     }
+
+    onUpdate(chat.id, name);
+    setIsEditing(false);
   };
 
 
   const handleDelete = event => {
     event.stopPropagation(); // Prevent the chat from being selected
-    const ul = handleClick();
-    if (ul)
-        onDelete(chat.id, chat.name);
+    if (!user) {
+        alert("Login first, please");
+        return;
+    }
+    
+    onDelete(chat.id, chat.name);
   };
 
 
@@ -41,6 +41,10 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
 
   const toggleEditing = event => {
     event.stopPropagation(); // Prevent the chat from being selected
+    if (!user) {
+        alert("Login first, please");
+        return;
+    }
     setIsEditing((prev) => !prev);
   };
 
@@ -49,15 +53,6 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
     if (ev.key === "Enter")
       handleUpdate();
   }
-
-
-  const handleClick = action => {
-    if (notLogged) {
-        alert("Login first, please");
-        return false;
-    }
-    return true;
-  };
 
 
   return (
@@ -81,15 +76,21 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
           </button>
         </div>
       ) : (
-        <div className="flex items-center cursor-pointer">
-          <h3 className="flex-grow font-semibold">{chat.name}</h3>
-          <button onClick={handleUpdate} className="px-1 text-gray-600 hover:text-gray-800">
-            <EditIcon />
-          </button>
-          <button onClick={handleDelete} className="px-1 ml-2 text-gray-600 hover:text-gray-800">
-          {/* <button onClick={() => handleClick("delete")} className="px-1 ml-2 text-gray-600 hover:text-gray-800"> */}
-            <TrashIcon />
-          </button>
+        // <div className="flex items-center cursor-pointer">
+        <div className="flex w-full justify-between cursor-pointer">
+            <div className='flex grow justify-between'>
+                <h3 className="flex-grow font-semibold">{chat.name}</h3>
+                <h3 className='italic mr-4'>{chat.username}</h3>
+            </div>
+            <div>
+                <button onClick={toggleEditing} className="px-1 text-gray-600 hover:text-blue-500 hover:font-extrabold">
+                    <EditIcon />
+                </button>
+                <button onClick={handleDelete} className=" text-gray-600 hover:text-red-500 hover:font-extrabold">
+                {/* <button onClick={() => handleClick("delete")} className="px-1 ml-2 text-gray-600 hover:text-gray-800"> */}
+                    <TrashIcon />
+                </button>
+            </div>
         </div>
       )}
     </div>

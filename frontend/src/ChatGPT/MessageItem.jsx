@@ -11,11 +11,13 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
   const tempMessage = message.content;
 
 
-  const { route } = useAuthenticator((context) => [context.route]);
-  const [notLogged, setNotLogged] = useState(true);
-  useEffect(() => {
-      setNotLogged((route !== "authenticated" ? true : false));
-  }, []);
+  const { user } = useAuthenticator(context => [context.user]);
+
+//   const { route } = useAuthenticator((context) => [context.route]);
+//   const [notLogged, setNotLogged] = useState(true);
+//   useEffect(() => {
+//       setNotLogged((route !== "authenticated" ? true : false));
+//   }, []);
 
 
 
@@ -82,14 +84,19 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
       
         <div className="flex items-center">
           <span className="flex-grow">{content}</span>
-          {/* <span>date</span> */}
           <FormatedDtTm />
-          <button onClick={() => setIsEditing(true)} disabled={notLogged} className="px-1 text-gray-600 hover:text-gray-800">
-            <EditIcon />
-          </button>
-          <button onClick={handleDelete} disabled={notLogged} className="px-1 text-gray-600 hover:text-gray-800">
-            <TrashIcon />
-          </button>
+
+          {user &&
+            <>
+                {/* <button onClick={() => setIsEditing(true)} disabled={notLogged} className="px-1 text-gray-600 hover:text-gray-800"> */}
+                <button onClick={() => setIsEditing(true)} className="px-1 text-gray-600 hover:text-blue-500">
+                    <EditIcon />
+                </button>
+                <button onClick={handleDelete} className="px-1 text-gray-600 hover:text-red-500">
+                    <TrashIcon />
+                </button>
+            </>
+          }
         </div>
         </div>
       )}

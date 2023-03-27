@@ -35,21 +35,21 @@ import { useAuthenticator } from "@aws-amplify/ui-react";
 // Amplify.configure(amplifyConfig);
 
 export default function App() {
-    const [token, setToken] = useState("");
+    // const [token, setToken] = useState("");
 
     const { user, signOut } = useAuthenticator(context => [context.user]);
 
-    useEffect(() => {
-        (async () => {
-            const getToken = (await Auth.currentSession()).getAccessToken().getJwtToken();
-            setToken(getToken);
-        })();
-    }, []);
+    // useEffect(() => {
+    //     (async () => {
+    //         const getToken = (await Auth.currentSession()).getAccessToken().getJwtToken();
+    //         setToken(getToken);
+    //     })();
+    // }, []);
     // }, [token, user]);
 
     const leaveApp = () => {
         // console.log("leavinggggggggggggggggggggg ")
-        setToken(prev => false);
+        // setToken(prev => false);
         signOut();
         // return ({msg: "test"});
         // return <Navigate to="/" />;   
@@ -66,16 +66,21 @@ export default function App() {
                                 <Link to="/">Home</Link>
                             </li>
 
-                            {!user &&
+                            {/* {!user &&
                                 <li>
                                     <Link to="/login">Register / Login</Link>
                                 </li>
-                            }
+                            } */}
 
-                            {user &&
-                                <li>
-                                    <Link to="/profile">Profile</Link>
-                                </li>
+                            {user
+                                ?
+                                    <li>
+                                        <Link to="/profile">Profile</Link>
+                                    </li>
+                                :
+                                    <li>
+                                        <Link to="/login">Register / Login</Link>
+                                    </li>
                             }
                             <li>
                                 <Link to="/about">About</Link>

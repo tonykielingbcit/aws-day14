@@ -8,7 +8,7 @@ import ChatWindow from './ChatWindow';
 const ChatGPT = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [processing, setProcessing] = useState(false);
-  const [token, setToken] = useState("");
+//   const [token, setToken] = useState("");
 
 //   useEffect(() => {
 //     (async () => {

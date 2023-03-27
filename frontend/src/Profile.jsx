@@ -16,7 +16,7 @@ export default function Profile({ onLeaveApp }) {
     //     // signOut();
     // };
 
-    console.log("userrrrrrr: ", user)
+    // console.log("userrrrrrr: ", user)
     if (!user)
         return <Navigate to="/" />;
 
