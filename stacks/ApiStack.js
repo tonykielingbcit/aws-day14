@@ -7,18 +7,23 @@ export function API({ stack }) {
   });
 
   const api = new Api(stack, "api", {
-    authorizers: {
-        jwt: {
-          type: "user_pool",
-          userPool: {
-            id: auth.userPoolId,
-            clientIds: [auth.userPoolClientId],
-          },
+    // authorizers: {
+    //     jwt: {
+    //       type: "user_pool",
+    //       userPool: {
+    //         id: auth.userPoolId,
+    //         clientIds: [auth.userPoolClientId],
+    //       },
+    //     },
+    //   },
+    defaults: {
+        authorizer: "iam",
+        function: {
+            environment: {
+                DATABASE_URL: process.env.DATABASE_URL,
+            },
         },
-      },
-      defaults: {
-        authorizer: "jwt",
-      },
+    },
     routes: {
       "GET /chats": {
           function: "packages/functions/src/chat/get.main",
