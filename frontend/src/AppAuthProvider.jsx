@@ -23,7 +23,7 @@ const amplifyConfig = {
   };
 Amplify.configure(amplifyConfig);
 
-console.log("amplifyConfig=== ", amplifyConfig)
+// console.log("amplifyConfig=== ", amplifyConfig)
 
 export default function AppAuthProvider() {
     return (

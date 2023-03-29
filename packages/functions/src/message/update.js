@@ -1,11 +1,10 @@
 import { updateMessage } from "@chatapp/core/src/database/db-message";
 
-export async function main(event, context) {
-    const sub = event.requestContext.authorizer?.jwt.claims.sub;
-
+export async function main(event) {
     try {
+        const identityPoolUserId = event.requestContext.authorizer.iam?.cognitoIdentity?.identityId;
         const { chatId, content } = JSON.parse(event.body);
-        const res = await updateMessage(chatId, content, sub);
+        const res = await updateMessage(chatId, content, identityPoolUserId);
         
         return ({
             statusCode: 200,

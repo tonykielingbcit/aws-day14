@@ -1,13 +1,14 @@
 import { getChats } from "@chatapp/core/src/database/db-chat";
 
-export async function main(event, context) {
+export async function main() {
   try {
     const allChats = await getChats();
   
     return ({
       statusCode: 200,
       body: JSON.stringify({
-        message: allChats
+        message: allChats,
+        error: false
       }),
     });
   } catch(error) {

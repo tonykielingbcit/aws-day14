@@ -14,15 +14,24 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
   useEffect(() => {
     onSetProcessing(true);
     
-    // (async () => {
-    //     const getMessages = await API.get("api", `/messages/${chat.id}`);
-    //     setMessages(getMessages.message);
-    //     onSetProcessing(false);
-    // })();
+    console.log("getting messages")
+    try {
+        (async () => {
+            const getMessages = await API.get("api", `/messages/${chat.id}`);
+            console.log("getMessages ", getMessages)
+            setMessages(getMessages.message);
+        })();
+    } catch (error) {
+        alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);
+        
+    } finally {
+        onSetProcessing(false);
+    }
 
-    API.get("api", `/messages/${chat.id}`)
-        .then(res => setMessages(res.message))
-        .then(onSetProcessing(false));
+        // API.get("api", `/messages/${chat.id}`)
+        //     .then(res => setMessages(res.message))
+        //     .then(onSetProcessing(false));
+
 
   }, [chat]);
 
@@ -35,37 +44,36 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
     }
     
     if (!user) {
-        alert("Login first, please");
-        return;
+        return alert("Login first, please");
+        // return;
     }
-
 
     onSetProcessing(true);
 
-    const addingMessage = await API.post(
-        "api",
-        "/newMessage",
-        {
-            body: { 
-                chatId: chat.id,
-                content: input
-             },
-            headers: {
-                Authorization: `Bearer ${(await Auth.currentSession())
-                  .getAccessToken()
-                  .getJwtToken()}`,
-              },
-        }
-    );
-
-    if (addingMessage.error) {
-        alert("Sorry, this chat does not belong to you \ntherefore you CANNOT ADD MESSAGES TO IT.");
-        onSetProcessing(false);
-        return false;
-    }
+    try {
+        const addingMessage = await API.post(
+            "api",
+            "/newMessage",
+            {
+                body: { 
+                    chatId: chat.id,
+                    content: input,
+                    content_type: "text"
+                 }
+            }
+        );
     
-    setMessages([addingMessage.message, ...messages]);
-    setInput('');
+        if (addingMessage.error) {
+            alert("Sorry, this chat does not belong to you \ntherefore you CANNOT ADD MESSAGES TO IT.");
+            onSetProcessing(false);
+            return false;
+        }
+        
+        setMessages([addingMessage.message, ...messages]);
+        setInput('');
+    } catch(error) {
+        alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);    
+    }
     onSetProcessing(false);
     inputRef.current.focus();
   };
@@ -81,12 +89,7 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
             body: { 
                 chatId: id,
                 content
-             },
-            headers: {
-                Authorization: `Bearer ${(await Auth.currentSession())
-                  .getAccessToken()
-                  .getJwtToken()}`,
-              },
+             }
         }
     );
 
@@ -108,14 +111,7 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
 
     const deletingMessage = await API.del(
         "api",
-        `/message/${id}`,
-        { 
-            headers: {
-                Authorization: `Bearer ${(await Auth.currentSession())
-                  .getAccessToken()
-                  .getJwtToken()}`,
-              },
-        }
+        `/message/${id}`
     );
 
     if (deletingMessage.error) {

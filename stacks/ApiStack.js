@@ -7,15 +7,6 @@ export function API({ stack }) {
   });
 
   const api = new Api(stack, "api", {
-    // authorizers: {
-    //     jwt: {
-    //       type: "user_pool",
-    //       userPool: {
-    //         id: auth.userPoolId,
-    //         clientIds: [auth.userPoolClientId],
-    //       },
-    //     },
-    //   },
     defaults: {
         authorizer: "iam",
         function: {
@@ -33,6 +24,7 @@ export function API({ stack }) {
       "DELETE /chat/{id}": "packages/functions/src/chat/delete.main", 
       "PUT /chat": "packages/functions/src/chat/update.main", 
     //   "GET /messages/{chatId}": "packages/functions/src/message/get.main",
+
       "GET /messages/{chatId}": {
         function: "packages/functions/src/message/get.main",
         authorizer: "none"

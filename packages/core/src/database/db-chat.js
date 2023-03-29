@@ -36,7 +36,7 @@ export async function updateChat(id, name, userId) {
     UPDATE chats
     SET name = $2
     WHERE id = $1 AND
-    user_id = $3
+        user_id = $3
   `, [id, name, userId]);
   return res.rowCount;
 }
@@ -45,7 +45,7 @@ export async function deleteChat(id, userId) {
   const res = await getPool().query(`
     DELETE FROM chats
     WHERE id = $1 AND
-    user_id = $2
+        user_id = $2
     RETURNING *
   `, [id, userId])
   return res.rowCount;

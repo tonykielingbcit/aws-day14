@@ -1,11 +1,10 @@
 import { deleteChat } from "@chatapp/core/src/database/db-chat";
 
-export async function main(event, context) {
-    const sub = event.requestContext.authorizer?.jwt.claims.sub;
-
+export async function main(event) {
     try {
+        const identityPoolUserId = event.requestContext.authorizer.iam?.cognitoIdentity?.identityId;
         const { id } = event.pathParameters;
-        const res = await deleteChat(id, sub);
+        const res = await deleteChat(id, identityPoolUserId);
 
         return ({
             statusCode: 200,
@@ -15,12 +14,6 @@ export async function main(event, context) {
             }),
         });
     
-    //   return ({
-    //     statusCode: 200,
-    //     body: JSON.stringify({
-    //       message: "from delete"
-    //     }),
-    //   });
     } catch(error) {
       console.log("###ERROR on deleteChat: ", error.message || error);
       return({

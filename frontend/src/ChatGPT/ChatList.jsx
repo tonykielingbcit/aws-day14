@@ -15,12 +15,13 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
         try {
             const getChats = await API.get("api", "/chats");
 
-            if (getChats?.error)
+            if (getChats?.error === false)
+                setChats(getChats.message);
+            else
                 throw (getChats.message);
 
-            setChats(getChats.message);
         } catch(error) {
-            console.log("###ERROR: ", error.message || error)
+            alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);
         }
         onSetProcessing(false);
     })();
@@ -29,63 +30,71 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
 
 
   const updateChat = async (id, newName) => {
-    onSetProcessing(true);
-
-    const updatingChat = await API.put(
-        "api",
-        "/chat",
-        {
-            body: {
-                id, 
-                name: newName
-            },
-            headers: {
-                Authorization: `Bearer ${(await Auth.currentSession())
-                  .getAccessToken()
-                  .getJwtToken()}`,
-              },
-        }
-    );
-
-    if (updatingChat.error) {
-        alert("Sorry, this chat does not belong to you \ntherefore you CANNOT UPDATE IT.");
-        onSetProcessing(false);
-        return;
-    }
+    try {
+        onSetProcessing(true);
     
-    const updatedChats = chats.map(chat => chat.id === id ? { ...chat, name: newName } : chat);
-    setChats(updatedChats);
+        const updatingChat = await API.put(
+            "api",
+            "/chat",
+            {
+                body: {
+                    id, 
+                    name: newName
+                },
+                // headers: {
+                //     Authorization: `Bearer ${(await Auth.currentSession())
+                //       .getAccessToken()
+                //       .getJwtToken()}`,
+                //   },
+            }
+        );
+    
+        if (updatingChat.error) {
+            alert("Sorry, this chat does not belong to you \ntherefore you CANNOT UPDATE IT.");
+            onSetProcessing(false);
+            return;
+        }
+        
+        const updatedChats = chats.map(chat => chat.id === id ? { ...chat, name: newName } : chat);
+        setChats(updatedChats);
+    } catch(error) {
+        alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);
+    }
     onSetProcessing(false);
   };
 
 
 
   const deleteChat = async (id, name) => {
-    const confirmDeletion = window.confirm(`Are you sure you want to delete \n chat '${name}' ?`);
-
-    if (!confirmDeletion) return;
-
-    onSetProcessing(true);
-    const deletingChat = await API.del(
-        "api",
-        `/chat/${id}`,
-        { 
-            headers: {
-                Authorization: `Bearer ${(await Auth.currentSession())
-                  .getAccessToken()
-                  .getJwtToken()}`,
-              },
-        }
-    );
+    try {
+        const confirmDeletion = window.confirm(`Are you sure you want to delete \n chat '${name}' ?`);
     
-    if (deletingChat.error) {
-        alert("Sorry, this chat does not belong to you \ntherefore you CANNOT DELETE IT.");
-        onSetProcessing(false);
-        return;
+        if (!confirmDeletion) return;
+    
+        onSetProcessing(true);
+        const deletingChat = await API.del(
+            "api",
+            `/chat/${id}`,
+            // { 
+            //     headers: {
+            //         Authorization: `Bearer ${(await Auth.currentSession())
+            //           .getAccessToken()
+            //           .getJwtToken()}`,
+            //       },
+            // }
+        );
+        
+        if (deletingChat.error) {
+            alert("Sorry, this chat does not belong to you \ntherefore you CANNOT DELETE IT.");
+            onSetProcessing(false);
+            return;
+        }
+    
+        const updatedChats = chats.filter(chat => chat.id !== id);
+        setChats(updatedChats);
+    } catch(error) {
+        alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);
     }
-
-    const updatedChats = chats.filter(chat => chat.id !== id);
-    setChats(updatedChats);
     onSetProcessing(false);
     onSetSelectedChat(null);
   };
@@ -93,23 +102,31 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
 
   
   const createChat = async name => {
-    onSetProcessing(true);
-    
-    const addingChat = await API.post(
-        "api",
-        "/newChat",
-        { 
-            body: { name: name },
-            // do NOT need this because we are fgoing to work with IAM instead of JWT
-            // headers: {
-            //     Authorization: `Bearer ${(await Auth.currentSession())
-            //       .getAccessToken()
-            //       .getJwtToken()}`,
-            //   },
-        }
-      );
+    try {
+        onSetProcessing(true);
+        
+        const addingChat = await API.post(
+            "api",
+            "/newChat",
+            { 
+                body: { name: name },
+                // do NOT need this because we are fgoing to work with IAM instead of JWT
+                // headers: {
+                //     Authorization: `Bearer ${(await Auth.currentSession())
+                //       .getAccessToken()
+                //       .getJwtToken()}`,
+                //   },
+            }
+          );
 
-    setChats([addingChat.message, ...chats]);
+        if (!addingChat.error)
+            setChats([addingChat.message, ...chats]);
+        else 
+            throw (addingChat.message)
+        
+    } catch(error) {
+        alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);
+    }
     onSetProcessing(false);
   };
 

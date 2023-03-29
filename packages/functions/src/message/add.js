@@ -1,12 +1,10 @@
 import { createMessage } from "@chatapp/core/src/database/db-message";
 
-export async function main(event, context) {
-    const sub = event.requestContext.authorizer?.jwt.claims.sub;
-    const username = event.requestContext.authorizer?.jwt.claims.username;
-
+export async function main(event) {
     try {
-        const { chatId, content } = JSON.parse(event.body);
-        const res = await createMessage(chatId, content, sub, username);
+        const identityPoolUserId = event.requestContext.authorizer.iam?.cognitoIdentity?.identityId;
+        const { chatId, content, content_type } = JSON.parse(event.body);
+        const res = await createMessage(chatId, content, content_type, identityPoolUserId, /*username*/ identityPoolUserId);
         
         return ({
             statusCode: 200,

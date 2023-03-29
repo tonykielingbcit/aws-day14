@@ -1,10 +1,10 @@
 import { updateChat } from "@chatapp/core/src/database/db-chat";
 
-export async function main(event, context) {
+export async function main(event) {
     try {
-        const sub = event.requestContext.authorizer?.jwt.claims.sub;
+        const identityPoolUserId = event.requestContext.authorizer.iam?.cognitoIdentity?.identityId;
         const { id, name } = JSON.parse(event.body);
-        const res = await updateChat(id, name, sub);
+        const res = await updateChat(id, name, identityPoolUserId);
 
         return ({
             statusCode: 200,

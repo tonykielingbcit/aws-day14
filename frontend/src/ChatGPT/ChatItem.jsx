@@ -55,6 +55,29 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
   }
 
 
+  // while we are not able to get the cognito username:
+  const shortenName = word => {
+    const wordLength = word.length;
+    if (wordLength > 9) {
+        let tempName = "";
+        for (let i = 0; i < wordLength; i++) {
+            if (i < 4) {
+                tempName += word[i];
+                continue;
+            }
+            if (i < 5)
+                tempName += "..."
+            if (i > (wordLength - 4)) {
+                tempName += word[i];
+                continue;
+            }
+        }
+        return tempName;
+    }
+    return word;
+  }
+
+
   return (
     <div className={`p-2 my-1 border-2 rounded-md hover:bg-lime-200 ${selected ? "bg-lime-200" : ""}`} onClick={handleSelect}>
       {isEditing ? (
@@ -80,7 +103,8 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
         <div className="flex w-full justify-between cursor-pointer">
             <div className='flex grow justify-between'>
                 <h3 className="flex-grow font-semibold">{chat.name}</h3>
-                <h3 className='italic mr-4'>{chat.username}</h3>
+                {/* <h3 className='italic mr-4'>{chat.username}</h3> */}
+                <h3 className='italic mr-4'>{shortenName(chat.username)}</h3>
             </div>
             <div>
                 <button onClick={toggleEditing} className="px-1 text-gray-600 hover:text-blue-500 hover:font-extrabold">
