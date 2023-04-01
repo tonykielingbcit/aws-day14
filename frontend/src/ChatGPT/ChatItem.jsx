@@ -67,7 +67,7 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
             }
             if (i < 5)
                 tempName += "..."
-            if (i > (wordLength - 4)) {
+            if (i > (wordLength - 5)) {
                 tempName += word[i];
                 continue;
             }
@@ -104,7 +104,7 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
             <div className='flex grow justify-between'>
                 <h3 className="flex-grow font-semibold">{chat.name}</h3>
                 {/* <h3 className='italic mr-4'>{chat.username}</h3> */}
-                <h3 className='italic mr-4'>{shortenName(chat.username)}</h3>
+                <h3 className='italic mr-4' title={chat.username}>{shortenName(chat.username)}</h3>
             </div>
             <div>
                 <button onClick={toggleEditing} className="px-1 text-gray-600 hover:text-blue-500 hover:font-extrabold">

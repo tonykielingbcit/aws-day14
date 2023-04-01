@@ -54,7 +54,7 @@ export default function App() {
     //     // return ({msg: "test"});
     //     // return <Navigate to="/" />;   
     // }
-
+// console.log("suer:::: ", user)
 
     return (
         // <Authenticator.Provider>

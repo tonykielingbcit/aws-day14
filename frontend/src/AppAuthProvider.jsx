@@ -20,7 +20,15 @@ const amplifyConfig = {
         },
       ],
     },
+    Storage: {
+        AWSS3: {
+          bucket: import.meta.env.VITE_APP_S3_BUCKET_NAME,
+          region: import.meta.env.VITE_APP_REGION,
+          level: "protected",
+        },
+    }
   };
+
 Amplify.configure(amplifyConfig);
 
 // console.log("amplifyConfig=== ", amplifyConfig)

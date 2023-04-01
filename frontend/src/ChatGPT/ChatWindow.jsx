@@ -2,78 +2,125 @@ import { useEffect, useRef, useState } from 'react';
 import Message from './MessageItem';
 import { Auth, API } from "aws-amplify";
 import { useAuthenticator } from "@aws-amplify/ui-react";
+import { Storage } from 'aws-amplify';
 
 
 const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
-  const inputRef = useRef(null);
-
-  const { user } = useAuthenticator((context) => [context.user]);
-
-  useEffect(() => {
-    onSetProcessing(true);
-    
-    console.log("getting messages")
-    try {
-        (async () => {
-            const getMessages = await API.get("api", `/messages/${chat.id}`);
-            console.log("getMessages ", getMessages)
-            setMessages(getMessages.message);
-        })();
-    } catch (error) {
-        alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);
-        
-    } finally {
-        onSetProcessing(false);
-    }
-
-        // API.get("api", `/messages/${chat.id}`)
-        //     .then(res => setMessages(res.message))
-        //     .then(onSetProcessing(false));
-
-
-  }, [chat]);
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState('');
+    const inputRef = useRef(null);
+    const [file, setFile] = useState(null);
 
   
+    const { user } = useAuthenticator((context) => [context.user]);
+  
+    useEffect(() => {
+        onSetProcessing(true);
+      
+        // console.log("getting messages")
+        try {
+            (async () => {
+                    const getMessages = await API.get("api", `/messages/${chat.id}`);
+                    const messages = getMessages.message;
+                    for(const message of messages) {
+                        if (message.content_type === "image")
+                        // video at 2:27
+                            message.url = await Storage.get(message.content, {
+                                identityId: message.user_id
+                            });
+                    }
+                    // setMessages(getMessages.message);
+                    setMessages(messages);
+                    console.log("tempMessages= ", getMessages, messages)
+                })();
+            } catch (error) {
+                alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);
+                
+            } finally {
+                onSetProcessing(false);
+            }
+    }, [chat]);
 
-  const handleSend = async () => {
-    if (!input || input.trim() === "") {
+
+    const handleFileChange = (event) => {
+        setFile(event.target.files[0]);
+    }
+
+
+const handleSend = async () => {
+    if (!file && (!input || input.trim()) === "") {
         inputRef.current.focus();
         return;
     }
     
-    if (!user) {
+    if (!user)
         return alert("Login first, please");
-        // return;
-    }
 
     onSetProcessing(true);
+console.log("file::::::::;;; ", file)
+    if (file) {
+        try {
+            const s3Options = {
+                contentType: file.type,
+                progressCallback(progress) {
+                    console.log(`Uploaded: ${progress.loaded/progress.total}`);;
+                },
+            };
+            const uniqueName = `${Date.now()}-${file.name}`;
+            await Storage.put(uniqueName, file, s3Options);
+            console.log('File uploaded successfully!');
+            const addingMessage = await API.post(
+                "api",
+                "/newMessage",
+                {
+                    body: { 
+                        chatId: chat.id,
+                        content: uniqueName,
+                        content_type: "image"
+                    }
+                }
+            );
+            const tempMessage = addingMessage.message;
+            tempMessage.url = await Storage.get(tempMessage.content, {
+                identityId: tempMessage.user_id
+            });
+            
+    console.log("tempMessage::::: ", tempMessage)
 
-    try {
-        const addingMessage = await API.post(
-            "api",
-            "/newMessage",
-            {
-                body: { 
-                    chatId: chat.id,
-                    content: input,
-                    content_type: "text"
-                 }
-            }
-        );
-    
-        if (addingMessage.error) {
-            alert("Sorry, this chat does not belong to you \ntherefore you CANNOT ADD MESSAGES TO IT.");
-            onSetProcessing(false);
-            return false;
+            setMessages([tempMessage, ...messages])
+        } catch (error) {
+            console.log('Error uploading file:', error);
+            alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);    
+        } finally {
+            setFile(null);
         }
+    } else {
+        try {
+            const addingMessage = await API.post(
+                "api",
+                "/newMessage",
+                {
+                    body: { 
+                        chatId: chat.id,
+                        content: input,
+                        content_type: "text"
+                     }
+                }
+            );
         
-        setMessages([addingMessage.message, ...messages]);
-        setInput('');
-    } catch(error) {
-        alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);    
+            if (addingMessage.error) {
+                alert("Sorry, this chat does not belong to you \ntherefore you CANNOT ADD MESSAGES TO IT.");
+                onSetProcessing(false);
+                return false;
+            }
+            
+            setMessages([addingMessage.message, ...messages]);
+            setInput('');
+        } catch(error) {
+            alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);    
+        }
     }
+
     onSetProcessing(false);
     inputRef.current.focus();
   };
@@ -140,6 +187,9 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
         ))}
       </div>
       <div className="flex mt-4">
+
+        <input type="file" onChange={handleFileChange} />
+
         <input
           type="text"
           value={input}

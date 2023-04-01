@@ -9,6 +9,8 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
   const isUser = message.sender === 'user';
   const inputRef = useRef(null);
   const tempMessage = message.content;
+  const image = message.content_type === "image" ? message.url : false;
+  console.log("message type:::: ", image, message)
 
   const { user } = useAuthenticator(context => [context.user]);
 
@@ -74,20 +76,26 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
       >
       
         <div className="flex items-center">
-          <span className="flex-grow">{content}</span>
-          <FormatedDtTm />
+            {!image
+                ? <span className="flex-grow">{content}</span>
+                : <img src={image} />
+            }
 
-          {user &&
-            <>
-                {/* <button onClick={() => setIsEditing(true)} disabled={notLogged} className="px-1 text-gray-600 hover:text-gray-800"> */}
-                <button onClick={() => setIsEditing(true)} className="px-1 text-gray-600 hover:text-blue-500">
-                    <EditIcon />
-                </button>
-                <button onClick={handleDelete} className="px-1 text-gray-600 hover:text-red-500">
-                    <TrashIcon />
-                </button>
-            </>
-          }
+            <FormatedDtTm />
+
+            {user &&
+                <>
+                    {/* <button onClick={() => setIsEditing(true)} disabled={notLogged} className="px-1 text-gray-600 hover:text-gray-800"> */}
+                    { !image && 
+                        <button onClick={() => setIsEditing(true)} className="px-1 text-gray-600 hover:text-blue-500">
+                            <EditIcon />
+                        </button>
+                    }
+                    <button onClick={handleDelete} className="px-1 text-gray-600 hover:text-red-500">
+                        <TrashIcon />
+                    </button>
+                </>
+            }
         </div>
         </div>
       )}

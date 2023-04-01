@@ -31,16 +31,16 @@ export async function createMessage(chatId, content, content_type, userId, usern
         SELECT * FROM chats
         WHERE id = $1
     `, [chatId]);
-
+console.log("getChatInfo- ", getChatInfo)
     if (getChatInfo.rows[0].user_id !== userId)
         return false;
-
+console.log("================== ", chatId, content, content_type, userId, username );
     const res = await getPool().query(`
-      INSERT INTO messages (chat_id, content, content_type, user_id, username)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *
+        INSERT INTO messages (chat_id, content, content_type, user_id, username)
+        VALUES ($1, $2, $3, $4, $5)
+        RETURNING *
     `, [chatId, content, content_type, userId, username]);
-
+console.log("************************ ", res.rows)
   return res.rows[0]
 }
 

@@ -5,6 +5,7 @@ export async function main(event) {
     try {
         const identityPoolUserId = event.requestContext.authorizer.iam?.cognitoIdentity?.identityId;
         const { id } = event.pathParameters;
+        console.log("receiving t delete::: ", identityPoolUserId, id);
         const res = await deleteMessage(id, identityPoolUserId);
 
         return ({
