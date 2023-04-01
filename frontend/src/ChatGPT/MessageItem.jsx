@@ -10,7 +10,7 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
   const inputRef = useRef(null);
   const tempMessage = message.content;
   const image = message.content_type === "image" ? message.url : false;
-  console.log("message type:::: ", image, message)
+//   console.log("message type:::: ", image, message)
 
   const { user } = useAuthenticator(context => [context.user]);
 
@@ -78,7 +78,13 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
         <div className="flex items-center">
             {!image
                 ? <span className="flex-grow">{content}</span>
-                : <img src={image} />
+                : 
+                    <div className='flex-grow'>
+                        {/* <div className="flex justify-center border-red-500 border-2 h-40"> */}
+                        <div className="flex justify-center h-40">
+                            <img src={image} className="object-cover max-w-full max-h-fit" />
+                        </div>
+                    </div>
             }
 
             <FormatedDtTm />

@@ -9,8 +9,8 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const inputRef = useRef(null);
-    const [file, setFile] = useState(null);
-
+    // const [file, setFile] = useState(null);
+    const FileButtonRef = useRef(null);
   
     const { user } = useAuthenticator((context) => [context.user]);
   
@@ -31,7 +31,7 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
                     }
                     // setMessages(getMessages.message);
                     setMessages(messages);
-                    console.log("tempMessages= ", getMessages, messages)
+                    // console.log("tempMessages= ", getMessages, messages)
                 })();
             } catch (error) {
                 alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);
@@ -42,33 +42,37 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
     }, [chat]);
 
 
-    const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+    const handleFileChange = event => {
+        // setFile(prev => event.target.files[0]);
+        handleSend(event.target.files[0]);
     }
 
 
-const handleSend = async () => {
-    if (!file && (!input || input.trim()) === "") {
-        inputRef.current.focus();
-        return;
-    }
+const handleSend = async (incomingFile) => {
+    console.log("----------------------- file: ", incomingFile, input)
+    if (!incomingFile)
+        if ((!input || input.trim()) === "") {
+            inputRef.current.focus();
+            return;
+        }
     
     if (!user)
         return alert("Login first, please");
 
     onSetProcessing(true);
-console.log("file::::::::;;; ", file)
-    if (file) {
+// console.log("file:::::::::::::::::::::::::::::::::: ", file)
+// if (1) return
+    if (incomingFile) {
         try {
             const s3Options = {
-                contentType: file.type,
+                contentType: incomingFile.type,
                 progressCallback(progress) {
                     console.log(`Uploaded: ${progress.loaded/progress.total}`);;
                 },
             };
-            const uniqueName = `${Date.now()}-${file.name}`;
-            await Storage.put(uniqueName, file, s3Options);
-            console.log('File uploaded successfully!');
+            const uniqueName = `${Date.now()}-${incomingFile.name}`;
+            await Storage.put(uniqueName, incomingFile, s3Options);
+            // console.log('File uploaded successfully!');
             const addingMessage = await API.post(
                 "api",
                 "/newMessage",
@@ -80,20 +84,28 @@ console.log("file::::::::;;; ", file)
                     }
                 }
             );
+
+            if (addingMessage.error) {
+                alert("Sorry, this chat does not belong to you \ntherefore you CANNOT ADD MESSAGES TO IT.");
+                onSetProcessing(false);
+                return false;
+            }
+
             const tempMessage = addingMessage.message;
             tempMessage.url = await Storage.get(tempMessage.content, {
                 identityId: tempMessage.user_id
             });
             
-    console.log("tempMessage::::: ", tempMessage)
+    // console.log("tempMessage::::: ", tempMessage)
 
             setMessages([tempMessage, ...messages])
         } catch (error) {
             console.log('Error uploading file:', error);
             alert(`Something bad happen, please try againg later.\n###ERROR:\n ${error.message || error}`);    
-        } finally {
-            setFile(null);
         }
+        // finally {
+        //     setFile(null);
+        // }
     } else {
         try {
             const addingMessage = await API.post(
@@ -188,7 +200,10 @@ console.log("file::::::::;;; ", file)
       </div>
       <div className="flex mt-4">
 
-        <input type="file" onChange={handleFileChange} />
+        <input type="file" 
+            onChange={handleFileChange} 
+            ref={FileButtonRef} hidden
+        />
 
         <input
           type="text"
@@ -200,9 +215,16 @@ console.log("file::::::::;;; ", file)
           onKeyDown={handleEnter}
           autoFocus
         />
+        <button onClick={() => FileButtonRef.current.click()} className="bg-green-400 rounded-full ml-2"
+            title='Attach a file'
+        >
+            <i className="material-icons flex flex-col justify-center align-middle text-blue-600 text-[36px] hover:text-blue-900" 
+            >attachment</i>
+        </button>
         <button
           onClick={handleSend}
-          className={`ml-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded ${onProcessing ? "bg-orange-400" : ""}`}
+          className={`ml-2 px-4 py-2 bg-blue-500 text-white font-semibold rounded ${onProcessing ? "bg-orange-400" : ""} hover:bg-blue-800`}
+          title="Send a message"
           disabled={onProcessing}
         >
           {onProcessing ? "processing..." : "Send"}
