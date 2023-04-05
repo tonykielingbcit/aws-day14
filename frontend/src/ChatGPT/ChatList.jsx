@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Auth, API } from "aws-amplify";
+import { API } from "aws-amplify";
+import { Storage } from 'aws-amplify';
 
 import ChatItem from './ChatItem';
 import NewChatButton from './NewChatButton';
@@ -71,6 +72,9 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
     
         if (!confirmDeletion) return;
     
+        const messagesInThisChat = await API.get("api", `/messages/${id}`);
+        console.log("messagesInThisChat::: ", messagesInThisChat)
+
         onSetProcessing(true);
         const deletingChat = await API.del(
             "api",
@@ -89,7 +93,15 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
             onSetProcessing(false);
             return;
         }
+
+
+        // it deletes the images for the chat just deleted above
+        const messages = messagesInThisChat.message;
+        for(const message of messages)
+            if (message.content_type === "image")
+                await Storage.remove(message.content);
     
+                
         const updatedChats = chats.filter(chat => chat.id !== id);
         setChats(updatedChats);
     } catch(error) {
@@ -110,7 +122,7 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
             "/newChat",
             { 
                 body: { name: name },
-                // do NOT need this because we are fgoing to work with IAM instead of JWT
+                // do NOT need this because we are going to work with IAM instead of JWT
                 // headers: {
                 //     Authorization: `Bearer ${(await Auth.currentSession())
                 //       .getAccessToken()

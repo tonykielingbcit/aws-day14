@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { EditIcon, TrashIcon } from './Icons'; // Import the icons from a separate file
+import { TrashIcon } from './Icons'; // Import the icons from a separate file
 import { useAuthenticator } from "@aws-amplify/ui-react";
+import { API } from "aws-amplify";
 
 
 const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
@@ -9,6 +10,7 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
   const inputRef = useRef(null);
 
   const { user } = useAuthenticator(context => [context.user]);
+  const userIdentityId = user && API.Credentials._identityId;
 
   const handleUpdate = () => {
     if (!user) {
@@ -99,19 +101,23 @@ const ChatItem = ({ chat, selected, onSelect, onUpdate, onDelete }) => {
           </button>
         </div>
       ) : (
-        // <div className="flex items-center cursor-pointer">
         <div className="flex w-full justify-between cursor-pointer">
             <div className='flex grow justify-between'>
                 <h3 className="flex-grow font-semibold">{chat.name}</h3>
-                {/* <h3 className='italic mr-4'>{chat.username}</h3> */}
-                <h3 className='italic mr-4' title={chat.username}>{shortenName(chat.username)}</h3>
+                <h3 className='italic mr-4' 
+                    title={userIdentityId === chat.username ? "I am logged  \\o/" : "User not logged"}>
+                    {userIdentityId === chat.username ? user.username : shortenName(chat.username)}
+                </h3>
             </div>
-            <div>
-                <button onClick={toggleEditing} className="px-1 text-gray-600 hover:text-blue-500 hover:font-extrabold">
-                    <EditIcon />
+            <div className='flex'>
+                <button onClick={toggleEditing} title='Edit Chat name'
+                    className="px-1 text-gray-600 hover:text-blue-500 hover:font-extrabold"
+                >
+                    <i className='fas fa-edit font-[48px] text-blue-500 hover:text-blue-800' />
                 </button>
-                <button onClick={handleDelete} className=" text-gray-600 hover:text-red-500 hover:font-extrabold">
-                {/* <button onClick={() => handleClick("delete")} className="px-1 ml-2 text-gray-600 hover:text-gray-800"> */}
+                <button onClick={handleDelete} title='Delete this Chat and all its messages'
+                    className="text-red-500 hover:text-red-800 hover:font-extrabold"
+                >
                     <TrashIcon />
                 </button>
             </div>

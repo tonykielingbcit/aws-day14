@@ -4,9 +4,7 @@ export async function main(event) {
     try {
         const identityPoolUserId = event.requestContext.authorizer.iam?.cognitoIdentity?.identityId;
         const { chatId, content, content_type } = JSON.parse(event.body);
-        console.log("-------- ", chatId, content, content_type)
         const res = await createMessage(chatId, content, content_type, identityPoolUserId, /*username*/ identityPoolUserId);
-        console.log("addeddddddddddd::: ", res)
         
         return ({
             statusCode: 200,

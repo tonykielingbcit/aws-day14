@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { EditIcon, TrashIcon } from './Icons';
+import { TrashIcon } from './Icons';
 import { useAuthenticator } from "@aws-amplify/ui-react";
 
 
@@ -10,7 +10,7 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
   const inputRef = useRef(null);
   const tempMessage = message.content;
   const image = message.content_type === "image" ? message.url : false;
-//   console.log("message type:::: ", image, message)
+//   console.log("message:::: ", image, message)
 
   const { user } = useAuthenticator(context => [context.user]);
 
@@ -24,7 +24,7 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
 
 
   const handleDelete = async () => {
-    const deletingMessage = await onDelete(message.id);
+    const deletingMessage = await onDelete(message);
 
     if (!deletingMessage)
         setContent(tempMessage);
@@ -49,7 +49,7 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
 
   return (
     <div className={`flex my-2 ${isUser ? 'justify-end' : ''}`}>
-    <div className="p-2 my-1 w-full">
+    <div className="p-2 py-1 w-full">
       {isEditing ? (
         <div className="flex">
           <input
@@ -93,11 +93,13 @@ const MessageItem = ({ message, onUpdate, onDelete }) => {
                 <>
                     {/* <button onClick={() => setIsEditing(true)} disabled={notLogged} className="px-1 text-gray-600 hover:text-gray-800"> */}
                     { !image && 
-                        <button onClick={() => setIsEditing(true)} className="px-1 text-gray-600 hover:text-blue-500">
-                            <EditIcon />
+                        <button onClick={() => setIsEditing(true)} title='Edit this message'
+                            className="pl-1 text-gray-600 hover:text-blue-500">
+                            <i className='fas fa-edit font-[48px] text-blue-500 hover:text-blue-800' />
                         </button>
                     }
-                    <button onClick={handleDelete} className="px-1 text-gray-600 hover:text-red-500">
+                    <button onClick={handleDelete} title='Delete this message'
+                        className="px-1 text-red-500 hover:text-red-800 hover:font-extrabold">
                         <TrashIcon />
                     </button>
                 </>
