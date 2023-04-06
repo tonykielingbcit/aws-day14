@@ -42,7 +42,6 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
 
     const handleFileChange = event => {
         const file = event.target.files[0];
-        console.log("file type::: ", file, file.type);
 
         // just in case image checking
         if ((file.type !== "image/x-png") && (file.type !== "image/png") && (file.type !== "image/gif") && (file.type !== "image/jpeg")) {
@@ -233,7 +232,7 @@ const ChatWindow = ({chat, onProcessing, onSetProcessing }) => {
           autoFocus
         />
         <button onClick={() => FileButtonRef.current.click()} className="bg-green-400 rounded-full ml-2"
-            title='Attach a file'
+            title="Attach an image"
         >
             <i className="material-icons flex flex-col justify-center align-middle text-blue-600 text-[36px] hover:text-blue-900" 
             >attachment</i>

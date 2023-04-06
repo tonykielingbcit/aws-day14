@@ -73,7 +73,8 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
         if (!confirmDeletion) return;
     
         const messagesInThisChat = await API.get("api", `/messages/${id}`);
-        console.log("messagesInThisChat::: ", messagesInThisChat)
+        console.log("messagesInThisChat to be deleted (including images) - if logged and owner of it");
+        console.log(messagesInThisChat);
 
         onSetProcessing(true);
         const deletingChat = await API.del(
@@ -101,7 +102,7 @@ const ChatList = ({ onSelect, selectedChat, onProcessing, onSetProcessing, onSet
             if (message.content_type === "image")
                 await Storage.remove(message.content);
     
-                
+
         const updatedChats = chats.filter(chat => chat.id !== id);
         setChats(updatedChats);
     } catch(error) {
